@@ -1,18 +1,20 @@
-# Seppy Configuration Guide
+# Configuration Guide
 
-This document describes all available configuration options for Seppy.
+This document describes the configuration options available in Seppy.
 
-## Configuration Methods
+## Configuration File
 
-Seppy can be configured in several ways:
+Seppy can be configured using a YAML configuration file. The configuration file can be specified when initializing Seppy:
 
-1. Using a configuration file (YAML or JSON)
-2. Through command-line arguments
-3. Programmatically via the Python API
+```python
+from seppy import Seppy
 
-## Configuration File Format
+analyzer = Seppy("example.py", config_file="config.yaml")
+```
 
-### YAML Format (Recommended)
+## Configuration Options
+
+### Basic Configuration
 
 ```yaml
 # config.yaml
@@ -20,320 +22,202 @@ IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
   - ".*"
-  - "test_*.py"
-  - "venv/*"
-MEMORY_LIMIT_MB: 2048
+MEMORY_LIMIT_MB: 1024
 MAX_THREADS: 4
 CACHE_ENABLED: true
 REPORT_FORMAT: "md"
 LOG_LEVEL: "INFO"
-CODE_STYLE:
-  indent_size: 4
-  line_length: 88
-  sort_imports: true
-FEATURES:
-  async_support: true
-  type_hints: true
-  docstrings: true
-  nested_classes: true
-  decorators: true
-DOCUMENTATION:
-  generate_examples: true
-  include_source: true
-  format: "markdown"
-  sections:
-    - "overview"
-    - "classes"
-    - "functions"
-    - "types"
 ```
 
-### JSON Format
+### Option Details
 
-```json
-{
-  "IGNORE_PATTERNS": [
-    "*.pyc",
-    "__pycache__/*",
-    ".*",
-    "test_*.py",
-    "venv/*"
-  ],
-  "MEMORY_LIMIT_MB": 2048,
-  "MAX_THREADS": 4,
-  "CACHE_ENABLED": true,
-  "REPORT_FORMAT": "md",
-  "LOG_LEVEL": "INFO",
-  "CODE_STYLE": {
-    "indent_size": 4,
-    "line_length": 88,
-    "sort_imports": true
-  },
-  "FEATURES": {
-    "async_support": true,
-    "type_hints": true,
-    "docstrings": true,
-    "nested_classes": true,
-    "decorators": true
-  },
-  "DOCUMENTATION": {
-    "generate_examples": true,
-    "include_source": true,
-    "format": "markdown",
-    "sections": [
-      "overview",
-      "classes",
-      "functions",
-      "types"
-    ]
-  }
-}
-```
+#### IGNORE_PATTERNS
+List of glob patterns for files to ignore during analysis.
+- Default: `["*.pyc", "__pycache__/*"]`
+- Example:
+  ```yaml
+  IGNORE_PATTERNS:
+    - "*.pyc"
+    - "__pycache__/*"
+    - "test_*.py"
+    - ".git/*"
+  ```
 
-## Configuration Options
+#### MEMORY_LIMIT_MB
+Maximum memory usage limit in megabytes.
+- Default: `1024`
+- Example:
+  ```yaml
+  MEMORY_LIMIT_MB: 2048
+  ```
 
-### IGNORE_PATTERNS
+#### MAX_THREADS
+Maximum number of threads to use for parallel processing.
+- Default: `4`
+- Example:
+  ```yaml
+  MAX_THREADS: 8
+  ```
 
-List of glob patterns for files to ignore during processing.
+#### CACHE_ENABLED
+Whether to enable caching of analysis results.
+- Default: `true`
+- Example:
+  ```yaml
+  CACHE_ENABLED: false
+  ```
 
-```yaml
-IGNORE_PATTERNS:
-  - "*.pyc"        # Ignore compiled Python files
-  - "__pycache__/*" # Ignore cache directories
-  - ".*"           # Ignore hidden files
-  - "test_*.py"    # Ignore test files
-  - "venv/*"       # Ignore virtual environment
-```
+#### REPORT_FORMAT
+Format for generated documentation.
+- Default: `"md"`
+- Supported values: `"md"`, `"rst"`
+- Example:
+  ```yaml
+  REPORT_FORMAT: "rst"
+  ```
 
-### MEMORY_LIMIT_MB
-
-Memory limit in megabytes for the processing.
-
-```yaml
-MEMORY_LIMIT_MB: 2048  # 2GB limit
-```
-
-- Minimum: 256 MB
-- Maximum: 8192 MB (8GB)
-- Default: 1024 MB (1GB)
-
-### MAX_THREADS
-
-Number of threads to use for parallel processing.
-
-```yaml
-MAX_THREADS: 4
-```
-
-- Minimum: 1
-- Maximum: 16
-- Default: 4
-
-### CACHE_ENABLED
-
-Enable or disable caching of processed files.
-
-```yaml
-CACHE_ENABLED: true
-```
-
-When enabled:
-- Speeds up repeated processing
-- Stores results in `.seppy_cache` directory
-- Automatically manages cache size
-
-### CODE_STYLE
-
-Code style preferences for generated modules.
-
-```yaml
-CODE_STYLE:
-  indent_size: 4        # Number of spaces for indentation
-  line_length: 88       # Maximum line length
-  sort_imports: true    # Sort imports by type
-  wrap_long_lines: true # Wrap lines exceeding max length
-  spaces_around_ops: true # Add spaces around operators
-```
-
-### FEATURES
-
-Control which Python features to support.
-
-```yaml
-FEATURES:
-  async_support: true    # Support async/await syntax
-  type_hints: true      # Include type hints
-  docstrings: true      # Preserve docstrings
-  nested_classes: true  # Support nested class definitions
-  decorators: true      # Support decorators
-  dataclasses: true     # Support dataclass features
-  protocols: true       # Support Protocol classes
-  generics: true        # Support generic types
-```
-
-### DOCUMENTATION
-
-Documentation generation settings.
-
-```yaml
-DOCUMENTATION:
-  generate_examples: true   # Generate usage examples
-  include_source: true     # Include source code
-  format: "markdown"       # Documentation format
-  sections:               # Sections to include
-    - "overview"
-    - "classes"
-    - "functions"
-    - "types"
-  code_blocks: true       # Include code blocks
-  cross_references: true  # Add cross-references
-```
+#### LOG_LEVEL
+Logging level for the application.
+- Default: `"INFO"`
+- Supported values: `"DEBUG"`, `"INFO"`, `"WARNING"`, `"ERROR"`, `"CRITICAL"`
+- Example:
+  ```yaml
+  LOG_LEVEL: "DEBUG"
+  ```
 
 ## Advanced Configuration
 
 ### Cache Configuration
 
 ```yaml
-CACHE_VERSION: "1.0.0"
-MAX_CACHE_SIZE: 1073741824  # 1GB in bytes
-CACHE_CLEANUP_THRESHOLD: 0.9  # 90%
-CACHE_TTL: 86400           # 24 hours in seconds
+CACHE_CONFIG:
+  DIRECTORY: ".cache"
+  MAX_SIZE_MB: 512
+  EXPIRATION_DAYS: 7
 ```
 
-### Memory Management
+### Documentation Configuration
 
 ```yaml
-MEMORY_CHECK_INTERVAL: 60  # seconds
-MIN_MEMORY_LIMIT: 256     # MB
-MAX_MEMORY_LIMIT: 8192    # MB
-GC_THRESHOLD: 0.8         # Trigger GC at 80% memory usage
+DOCS_CONFIG:
+  TEMPLATE_DIR: "templates"
+  OUTPUT_FORMAT: "md"
+  INCLUDE_PRIVATE: false
+  INCLUDE_SOURCE: true
 ```
 
-### Processing Options
+### Analysis Configuration
 
 ```yaml
-PROCESSING:
-  parallel_enabled: true
-  max_file_size: 10485760  # 10MB
-  timeout: 300             # 5 minutes
-  retries: 3
-  batch_size: 100
+ANALYSIS_CONFIG:
+  MAX_FILE_SIZE_MB: 10
+  IGNORE_DECORATORS:
+    - "deprecated"
+    - "experimental"
+  PARSE_DOCSTRINGS: true
+  TYPE_CHECK: true
 ```
 
 ## Environment Variables
 
-Seppy respects the following environment variables:
+Seppy also supports configuration through environment variables:
 
+- `SEPPY_MEMORY_LIMIT`: Memory limit in MB
+- `SEPPY_MAX_THREADS`: Maximum thread count
+- `SEPPY_CACHE_ENABLED`: Enable/disable caching
+- `SEPPY_LOG_LEVEL`: Logging level
+
+Example:
 ```bash
-SEPPY_CONFIG_FILE=/path/to/config.yaml
-SEPPY_MEMORY_LIMIT=2048
-SEPPY_LOG_LEVEL=DEBUG
-SEPPY_CACHE_DIR=/path/to/cache
-SEPPY_MAX_THREADS=8
+export SEPPY_MEMORY_LIMIT=2048
+export SEPPY_LOG_LEVEL=DEBUG
 ```
 
-## Configuration Best Practices
+## Configuration Precedence
 
-1. **Development Configuration**
-   ```yaml
-   MEMORY_LIMIT_MB: 1024
-   MAX_THREADS: 4
-   CACHE_ENABLED: true
-   LOG_LEVEL: "DEBUG"
-   FEATURES:
-     async_support: true
-     type_hints: true
-   ```
+Configuration values are loaded in the following order (later sources override earlier ones):
 
-2. **Production Configuration**
-   ```yaml
-   MEMORY_LIMIT_MB: 4096
-   MAX_THREADS: 8
-   CACHE_ENABLED: true
-   LOG_LEVEL: "WARNING"
-   FEATURES:
-     async_support: true
-     type_hints: true
-   ```
-
-3. **Documentation Generation**
-   ```yaml
-   DOCUMENTATION:
-     generate_examples: true
-     include_source: true
-     format: "markdown"
-     sections:
-       - "overview"
-       - "classes"
-       - "functions"
-     code_blocks: true
-   ```
+1. Default values
+2. Configuration file
+3. Environment variables
+4. Command-line arguments
 
 ## Example Configurations
 
-### Minimal Configuration
-```yaml
-IGNORE_PATTERNS:
-  - "*.pyc"
-MEMORY_LIMIT_MB: 1024
-MAX_THREADS: 4
-CACHE_ENABLED: true
-```
+### Development Configuration
 
-### Full Development Configuration
 ```yaml
+# dev_config.yaml
+MEMORY_LIMIT_MB: 2048
+MAX_THREADS: 8
+CACHE_ENABLED: true
+LOG_LEVEL: "DEBUG"
 IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
-  - "venv/*"
-  - ".git/*"
-  - "tests/*"
-MEMORY_LIMIT_MB: 2048
-MAX_THREADS: 4
-CACHE_ENABLED: true
-LOG_LEVEL: "DEBUG"
-CODE_STYLE:
-  indent_size: 4
-  line_length: 88
-  sort_imports: true
-FEATURES:
-  async_support: true
-  type_hints: true
-  docstrings: true
-DOCUMENTATION:
-  generate_examples: true
-  include_source: true
-  format: "markdown"
-  sections:
-    - "overview"
-    - "classes"
-    - "functions"
+  - "test_*.py"
+DOCS_CONFIG:
+  INCLUDE_PRIVATE: true
+  INCLUDE_SOURCE: true
 ```
 
 ### Production Configuration
+
 ```yaml
+# prod_config.yaml
+MEMORY_LIMIT_MB: 4096
+MAX_THREADS: 16
+CACHE_ENABLED: true
+LOG_LEVEL: "WARNING"
 IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
-  - ".*"
-MEMORY_LIMIT_MB: 4096
-MAX_THREADS: 8
-CACHE_ENABLED: true
-LOG_LEVEL: "WARNING"
-CODE_STYLE:
-  indent_size: 4
-  line_length: 88
-  sort_imports: true
-FEATURES:
-  async_support: true
-  type_hints: true
-  docstrings: true
-DOCUMENTATION:
-  generate_examples: false
-  include_source: false
-  format: "markdown"
-  sections:
-    - "overview"
-    - "classes"
-    - "functions"
-``` 
+  - "test_*.py"
+  - "*.log"
+DOCS_CONFIG:
+  INCLUDE_PRIVATE: false
+  INCLUDE_SOURCE: false
+```
+
+### Testing Configuration
+
+```yaml
+# test_config.yaml
+MEMORY_LIMIT_MB: 1024
+MAX_THREADS: 2
+CACHE_ENABLED: false
+LOG_LEVEL: "DEBUG"
+IGNORE_PATTERNS:
+  - "*.pyc"
+  - "__pycache__/*"
+DOCS_CONFIG:
+  INCLUDE_PRIVATE: true
+  INCLUDE_SOURCE: true
+```
+
+## Best Practices
+
+1. **Memory Management**
+   - Set `MEMORY_LIMIT_MB` based on available system resources
+   - Monitor memory usage during analysis
+   - Enable caching for large codebases
+
+2. **Threading**
+   - Set `MAX_THREADS` based on CPU cores
+   - Consider I/O bound vs CPU bound operations
+   - Monitor thread usage
+
+3. **Caching**
+   - Enable caching for development
+   - Configure cache cleanup
+   - Monitor cache size
+
+4. **Documentation**
+   - Choose appropriate output format
+   - Configure privacy settings
+   - Set up templates
+
+5. **Logging**
+   - Use appropriate log levels
+   - Configure log rotation
+   - Set up log handlers 

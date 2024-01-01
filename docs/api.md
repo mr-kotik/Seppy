@@ -1,88 +1,71 @@
-# Seppy API Reference
+# API Documentation
 
-This document provides detailed information about Seppy's API components.
+## Core Classes
 
-## Table of Contents
+### Seppy
 
-1. [Core API](#core-api)
-2. [Models](#models)
-3. [Analyzers](#analyzers)
-4. [Processors](#processors)
-5. [Utilities](#utilities)
-6. [Exceptions](#exceptions)
-
-## Core API
-
-### Seppy Class
-
-The main class for script splitting operations.
+The main class for code analysis and documentation generation.
 
 ```python
 class Seppy:
-    def __init__(
-        self,
-        source_file: str,
-        config_file: Optional[str] = None,
-        memory_limit_mb: Optional[int] = None
-    ):
-        """Initialize Seppy instance.
+    def __init__(self, source_file: str, config_file: Optional[str] = None):
+        """Initialize Seppy analyzer.
         
         Args:
-            source_file: Path to the source Python file
+            source_file: Path to the Python file to analyze
             config_file: Optional path to configuration file
-            memory_limit_mb: Optional memory limit override
         """
         pass
-
-    def parse_script(self, source_file: str) -> Dict[str, ModuleInfo]:
-        """Parse Python script and extract module information.
+    
+    def analyze_imports(self) -> Dict[str, Set[str]]:
+        """Analyze imports in the source file.
         
-        Args:
-            source_file: Path to the Python file to parse
-            
         Returns:
-            Dictionary mapping module names to ModuleInfo objects
-            
-        Raises:
-            ParseError: If script parsing fails
-            ModuleProcessingError: If module processing fails
+            Dictionary mapping module names to their imports
         """
         pass
-
-    def save_modules(self, output_dir: str):
-        """Save split modules to files.
+    
+    def generate_docs(self, output_dir: str) -> None:
+        """Generate documentation for the analyzed code.
         
         Args:
-            output_dir: Directory to save modules in
-            
-        Raises:
-            IOError: If file operations fail
+            output_dir: Directory to save generated documentation
+        """
+        pass
+    
+    def get_module_info(self) -> ModuleInfo:
+        """Get detailed information about the analyzed module.
+        
+        Returns:
+            ModuleInfo object containing module details
         """
         pass
 ```
 
-## Models
-
 ### ModuleInfo
+
+Class containing detailed information about a Python module.
 
 ```python
 @dataclass
 class ModuleInfo:
     """Information about a module."""
-    name: str              # Module name
-    code: str             # Module source code
-    imports: Set[str]     # Import statements
-    global_vars: Set[str] # Global variables
-    functions: Set[str]   # Function definitions
-    classes: Set[str]     # Class definitions
-    async_functions: Set[str] = field(default_factory=set)
-    dependencies: Set[str] = field(default_factory=set)
-    docstring: Optional[str] = None
-    decorators: Set[str] = field(default_factory=set)
-    docs: str = ""
+    name: str                # Module name
+    code: str               # Source code
+    imports: Set[str]       # Import statements
+    global_vars: Set[str]   # Global variables
+    functions: Set[str]     # Function definitions
+    classes: Set[str]       # Class definitions
+    async_functions: Set[str] = field(default_factory=set)  # Async functions
+    dependencies: Set[str] = field(default_factory=set)     # Module dependencies
+    docstring: Optional[str] = None                         # Module docstring
+    decorators: Set[str] = field(default_factory=set)       # Module decorators
+    docs: str = ""                                          # Generated documentation
 ```
 
 ### CacheData
+
+Class for storing cached analysis data.
 
 ```python
 @dataclass
@@ -93,6 +76,8 @@ class CacheData:
 ```
 
 ### ProcessingStats
+
+Class for tracking code analysis statistics.
 
 ```python
 @dataclass
@@ -130,20 +115,32 @@ def analyze_complex_structures(node: ast.AST, source_code: str = '') -> Dict[str
         source_code: Original source code for preserving formatting
         
     Returns:
-        Dictionary containing analyzed structures
+        Dictionary containing analysis results
     """
     pass
 
 def find_used_imports(node: ast.AST, all_imports: Set[str]) -> Set[str]:
-    """Find imports that are actually used in the code."""
+    """Find imports that are actually used in the code.
+    
+    Args:
+        node: AST node to analyze
+        all_imports: Set of all import statements
+        
+    Returns:
+        Set of used imports
+    """
     pass
 
 def find_used_globals(node: ast.AST, global_vars: Set[str]) -> Set[str]:
-    """Find global variables that are used in the code."""
-    pass
-
-def extract_imports(tree: ast.AST, *nodes) -> Set[str]:
-    """Extract all imports from AST nodes."""
+    """Find global variables that are used in the code.
+    
+    Args:
+        node: AST node to analyze
+        global_vars: Set of global variable names
+        
+    Returns:
+        Set of used global variables
+    """
     pass
 ```
 
@@ -152,44 +149,24 @@ def extract_imports(tree: ast.AST, *nodes) -> Set[str]:
 ### Code Processing Functions
 
 ```python
-def create_complex_module(name: str, node: ast.AST, structures: Dict[str, Any]) -> str:
-    """Create a module from complex code structures.
-    
-    Handles:
-    - Type aliases and generic types
-    - Constants and variables
-    - Import statements
-    - Function and method definitions
-    - Class definitions with inheritance
-    - Nested classes and functions
-    - Decorators and annotations
-    - Context managers and control flow
-    - Modern Python features
+def create_module_code(imports: Set[str], code: str) -> str:
+    """Create module code with organized imports.
     
     Args:
-        name: Name of the module
-        node: AST node to process
-        structures: Dictionary of analyzed structures
+        imports: Set of import statements
+        code: Source code
         
     Returns:
-        Generated module code as string
+        Formatted module code
     """
     pass
 
 def create_module_docs(module_name: str, code: str) -> str:
     """Create documentation for a module.
     
-    Generates:
-    - Module overview
-    - Import statements
-    - Function and method documentation
-    - Class documentation
-    - Type information
-    - Usage examples
-    
     Args:
         module_name: Name of the module
-        code: Source code of the module
+        code: Source code
         
     Returns:
         Generated markdown documentation
@@ -199,60 +176,73 @@ def create_module_docs(module_name: str, code: str) -> str:
 def organize_imports(imports: Set[str]) -> str:
     """Organize imports into a formatted string.
     
-    Organizes imports into sections:
-    - Standard library imports
-    - Third-party imports
-    - Local imports
-    
     Args:
         imports: Set of import statements
         
     Returns:
-        Formatted import section
+        Formatted import statements
     """
     pass
 ```
 
 ## Utilities
 
-### Decorators
+### Helper Functions
 
 ```python
-def time_operation(operation_name: str):
-    """Decorator for measuring operation execution time."""
+@time_operation(operation_name: str)
+def measure_time(func):
+    """Decorator for measuring operation execution time.
+    
+    Args:
+        operation_name: Name of the operation to measure
+        
+    Returns:
+        Decorated function
+    """
+    pass
+
+def setup_logging(level: str = "INFO") -> None:
+    """Configure logging with rich formatting.
+    
+    Args:
+        level: Logging level (default: INFO)
+    """
     pass
 ```
 
-### Configuration
+## Configuration
+
+### Configuration Options
 
 ```python
-class SeppyConfig(TypedDict):
-    """Configuration type definition."""
-    IGNORE_PATTERNS: List[str]
-    MEMORY_LIMIT_MB: int
-    MAX_THREADS: int
-    CACHE_ENABLED: bool
-    REPORT_FORMAT: str
-    LOG_LEVEL: str
+class Config:
+    """Configuration settings for Seppy."""
+    IGNORE_PATTERNS: List[str] = ["*.pyc", "__pycache__/*"]
+    MEMORY_LIMIT_MB: int = 1024
+    MAX_THREADS: int = 4
+    CACHE_ENABLED: bool = True
+    REPORT_FORMAT: str = "md"
+    LOG_LEVEL: str = "INFO"
 ```
 
-## Exceptions
+## Exception Classes
 
 ```python
-class ScriptSplitterError(Exception):
-    """Base class for ScriptSplitter errors."""
+class SeppyError(Exception):
+    """Base exception for Seppy errors."""
     pass
 
-class ParseError(ScriptSplitterError):
-    """Error during code parsing."""
+class ParseError(SeppyError):
+    """Raised when code parsing fails."""
     pass
 
-class ModuleProcessingError(ScriptSplitterError):
-    """Error during module processing."""
+class ConfigError(SeppyError):
+    """Raised when configuration is invalid."""
     pass
 
-class CacheError(ScriptSplitterError):
-    """Error during cache operations."""
+class MemoryError(SeppyError):
+    """Raised when memory limit is exceeded."""
     pass
 ```
 

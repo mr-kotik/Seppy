@@ -1,110 +1,69 @@
-# Seppy Examples
+# Usage Examples
 
-This document provides practical examples of using Seppy in various scenarios.
+This document provides practical examples of using Seppy for code analysis and documentation generation.
 
-## Table of Contents
+## Basic Usage
 
-1. [Basic Examples](#basic-examples)
-2. [Advanced Examples](#advanced-examples)
-3. [Real-World Examples](#real-world-examples)
-4. [Integration Examples](#integration-examples)
-5. [Best Practices Examples](#best-practices-examples)
-
-## Basic Examples
-
-### Simple Script Splitting
-
-Consider a simple Python script `calculator.py`:
+### Analyzing a Single File
 
 ```python
-# calculator.py
-class Calculator:
-    def add(self, a, b):
-        return a + b
-    
-    def subtract(self, a, b):
-        return a - b
+from seppy import Seppy
 
-def multiply(a, b):
-    return a * b
+# Initialize analyzer
+analyzer = Seppy("example.py")
 
-def divide(a, b):
-    if b == 0:
-        raise ValueError("Cannot divide by zero")
-    return a / b
+# Generate documentation
+analyzer.generate_docs("docs/")
 
-# Usage example
-calc = Calculator()
-print(calc.add(5, 3))
-print(multiply(4, 2))
+# Get module information
+module_info = analyzer.get_module_info()
+print(f"Module name: {module_info.name}")
+print(f"Functions: {module_info.functions}")
+print(f"Classes: {module_info.classes}")
 ```
 
-Split this script using Seppy:
+### Working with Multiple Files
 
-```bash
-seppy calculator.py -o calculator_modules
-```
+```python
+import os
+from seppy import Seppy
 
-This will create:
+def analyze_directory(directory: str):
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.py'):
+                file_path = os.path.join(root, file)
+                analyzer = Seppy(file_path)
+                analyzer.generate_docs(f"docs/{file}")
 
-```
-calculator_modules/
-├── calculator.py      # Contains Calculator class
-├── multiply.py        # Contains multiply function
-├── divide.py         # Contains divide function
-└── docs/
-    ├── calculator.md
-    ├── multiply.md
-    └── divide.md
-```
-
-### Using Configuration
-
-Split a script with custom configuration:
-
-```yaml
-# config.yaml
-IGNORE_PATTERNS:
-  - "test_*.py"
-MEMORY_LIMIT_MB: 2048
-MAX_THREADS: 4
-CACHE_ENABLED: true
-```
-
-```bash
-seppy large_script.py -c config.yaml -o modules
+analyze_directory("src/")
 ```
 
 ## Advanced Examples
 
-### Handling Complex Dependencies
-
-Consider a script with complex dependencies:
+### Class Analysis
 
 ```python
-# app.py
+# example_classes.py
+from dataclasses import dataclass
 from typing import Optional, List
-import logging
-import json
+
+@dataclass
+class User:
+    name: str
+    age: int
+    email: Optional[str] = None
 
 class DataProcessor:
-    def __init__(self, logger: Optional[logging.Logger] = None):
-        self.logger = logger or logging.getLogger(__name__)
-        
-    def process_data(self, data: List[dict]) -> dict:
-        result = {}
-        for item in data:
-            self._validate_item(item)
-            self._transform_item(item)
-            result[item['id']] = item
-        return result
+    def __init__(self):
+        self.data = []
     
-    def _validate_item(self, item: dict):
-        if 'id' not in item:
-            raise ValueError("Item must have an id")
+    def process_data(self, items: List[dict]) -> List[dict]:
+        return [self._transform_item(item) for item in items]
     
     def _transform_item(self, item: dict):
         item['processed'] = True
+        return item
 
 class DataWriter:
     def save_json(self, data: dict, filename: str):
@@ -122,257 +81,192 @@ if __name__ == '__main__':
     main()
 ```
 
-Split this script with dependency tracking:
+### Async Code Analysis
 
 ```python
-from seppy import Seppy
-
-splitter = Seppy("app.py", config_file="config.yaml")
-modules = splitter.parse_script("app.py")
-splitter.save_modules("app_modules")
-```
-
-### Working with Async Code
-
-Example of splitting async code:
-
-```python
-# async_app.py
+# async_example.py
 import asyncio
 import aiohttp
+from typing import List, Dict
 
 class AsyncDataFetcher:
     async def fetch_data(self, url: str) -> dict:
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as response:
                 return await response.json()
+    
+    async def fetch_multiple(self, urls: List[str]) -> List[dict]:
+        tasks = [self.fetch_data(url) for url in urls]
+        return await asyncio.gather(*tasks)
 
-async def process_urls(urls: list) -> list:
+async def process_urls(urls: List[str]) -> List[Dict]:
     fetcher = AsyncDataFetcher()
-    tasks = [fetcher.fetch_data(url) for url in urls]
-    return await asyncio.gather(*tasks)
+    results = await fetcher.fetch_multiple(urls)
+    return [{'url': url, 'data': data} for url, data in zip(urls, results)]
 
 async def main():
     urls = [
-        'https://api.example.com/data1',
-        'https://api.example.com/data2'
+        'https://api.example.com/data/1',
+        'https://api.example.com/data/2'
     ]
     results = await process_urls(urls)
-    print(results)
+    print(f"Processed {len(results)} URLs")
 
 if __name__ == '__main__':
     asyncio.run(main())
 ```
 
-## Real-World Examples
-
-### Web Application Refactoring
-
-Starting with a monolithic Flask application:
+### Type Hints and Protocols
 
 ```python
-# app.py
-from flask import Flask, request, jsonify
-import sqlite3
-import bcrypt
+# type_examples.py
+from typing import Protocol, TypeVar, Generic, List
+from dataclasses import dataclass
 
-app = Flask(__name__)
+T = TypeVar('T')
 
-def get_db():
-    conn = sqlite3.connect('database.db')
-    return conn
+class Processor(Protocol):
+    def process(self, data: T) -> T:
+        ...
 
-class UserManager:
-    def create_user(self, username: str, password: str):
-        hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        with get_db() as db:
-            cursor = db.cursor()
-            cursor.execute(
-                'INSERT INTO users (username, password) VALUES (?, ?)',
-                (username, hashed)
-            )
-            db.commit()
+@dataclass
+class ProcessingResult(Generic[T]):
+    input_data: T
+    output_data: T
+    success: bool = True
 
-    def verify_user(self, username: str, password: str) -> bool:
-        with get_db() as db:
-            cursor = db.cursor()
-            cursor.execute(
-                'SELECT password FROM users WHERE username = ?',
-                (username,)
-            )
-            result = cursor.fetchone()
-            if result:
-                return bcrypt.checkpw(
-                    password.encode(),
-                    result[0]
-                )
-            return False
+class NumberProcessor:
+    def process(self, data: int) -> int:
+        return data * 2
 
-@app.route('/register', methods=['POST'])
-def register():
-    data = request.get_json()
-    user_manager = UserManager()
-    try:
-        user_manager.create_user(
-            data['username'],
-            data['password']
-        )
-        return jsonify({'status': 'success'}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+class TextProcessor:
+    def process(self, data: str) -> str:
+        return data.upper()
 
-@app.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    user_manager = UserManager()
-    if user_manager.verify_user(
-        data['username'],
-        data['password']
-    ):
-        return jsonify({'status': 'success'}), 200
-    return jsonify({'error': 'Invalid credentials'}), 401
+def process_items(processor: Processor[T], items: List[T]) -> List[ProcessingResult[T]]:
+    results = []
+    for item in items:
+        try:
+            output = processor.process(item)
+            results.append(ProcessingResult(item, output))
+        except Exception:
+            results.append(ProcessingResult(item, item, success=False))
+    return results
+
+# Usage
+numbers = [1, 2, 3, 4, 5]
+number_processor = NumberProcessor()
+number_results = process_items(number_processor, numbers)
+
+texts = ["hello", "world"]
+text_processor = TextProcessor()
+text_results = process_items(text_processor, texts)
+```
+
+### Context Managers
+
+```python
+# context_examples.py
+from typing import Optional
+from contextlib import contextmanager
+import time
+
+class ResourceManager:
+    def __init__(self, name: str):
+        self.name = name
+        self.in_use = False
+    
+    def acquire(self):
+        self.in_use = True
+        print(f"Resource {self.name} acquired")
+    
+    def release(self):
+        self.in_use = False
+        print(f"Resource {self.name} released")
+    
+    @contextmanager
+    def resource_context(self):
+        try:
+            self.acquire()
+            yield self
+        finally:
+            self.release()
+
+class AsyncResourceManager:
+    def __init__(self, name: str):
+        self.name = name
+        self.in_use = False
+    
+    async def __aenter__(self):
+        self.in_use = True
+        print(f"Async resource {self.name} acquired")
+        return self
+    
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        self.in_use = False
+        print(f"Async resource {self.name} released")
+
+# Usage
+def main():
+    # Synchronous context manager
+    manager = ResourceManager("DB Connection")
+    with manager.resource_context():
+        print("Working with resource...")
+        time.sleep(1)
+    
+    # Multiple context managers
+    manager1 = ResourceManager("Cache")
+    manager2 = ResourceManager("File")
+    with manager1.resource_context(), manager2.resource_context():
+        print("Working with multiple resources...")
+        time.sleep(1)
+
+async def async_main():
+    # Async context manager
+    async with AsyncResourceManager("API Connection") as manager:
+        print("Working with async resource...")
+        await asyncio.sleep(1)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    main()
+    asyncio.run(async_main())
 ```
 
-Split into modules using Seppy:
+## Configuration Examples
 
-```bash
-seppy app.py -o webapp -c webapp_config.yaml
-```
+### Custom Configuration
 
-## Integration Examples
-
-### CI/CD Integration
-
-Example GitHub Actions workflow:
-
-```yaml
-name: Split Code
-
-on:
-  push:
-    paths:
-      - 'src/**/*.py'
-
-jobs:
-  split-code:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.9'
-      - name: Install Seppy
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
-      - name: Split Code
-        run: |
-          for file in src/*.py; do
-            seppy "$file" -o "modules/$(basename "$file" .py)"
-          done
-```
-
-### Pre-commit Hook
-
-Example pre-commit configuration:
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: seppy-split
-        name: Split large Python files
-        entry: seppy
-        language: python
-        types: [python]
-        args: [-o, modules]
-```
-
-## Best Practices Examples
-
-### Module Organization
-
-Example directory structure:
-
-```
-project/
-├── src/
-│   ├── core/
-│   │   ├── __init__.py
-│   │   └── large_module.py
-│   ├── utils/
-│   │   └── helpers.py
-│   └── main.py
-├── tests/
-│   └── test_core.py
-└── seppy.yaml
-```
-
-Seppy configuration for this project:
-
-```yaml
-# seppy.yaml
+```python
+# config.yaml
 IGNORE_PATTERNS:
-  - "tests/*"
-  - "**/__init__.py"
-MEMORY_LIMIT_MB: 2048
+  - "*.pyc"
+  - "__pycache__/*"
+  - ".*"
+MEMORY_LIMIT_MB: 1024
 MAX_THREADS: 4
 CACHE_ENABLED: true
 REPORT_FORMAT: "md"
 LOG_LEVEL: "INFO"
 ```
 
-Split command:
+```python
+from seppy import Seppy
 
-```bash
-seppy src/core/large_module.py -c seppy.yaml -o src/core/modules
+analyzer = Seppy("example.py", config_file="config.yaml")
+analyzer.generate_docs("docs/")
 ```
 
-### Documentation Generation
-
-Example module with comprehensive docstrings:
+## Error Handling
 
 ```python
-# analytics.py
-"""
-Analytics module for processing and analyzing data.
+from seppy import Seppy, ParseError, ConfigError
 
-This module provides functionality for:
-- Data processing
-- Statistical analysis
-- Report generation
-"""
-
-class DataAnalyzer:
-    """
-    Performs statistical analysis on data sets.
-    
-    Attributes:
-        data (pd.DataFrame): The input data
-        results (dict): Analysis results
-    """
-    
-    def analyze(self, data: pd.DataFrame) -> dict:
-        """
-        Perform statistical analysis.
-        
-        Args:
-            data: Input DataFrame
-            
-        Returns:
-            Dictionary with analysis results
-        """
-        pass
-```
-
-Generate documentation:
-
-```bash
-seppy analytics.py -o analytics_modules
-```
-
-This will create detailed markdown documentation preserving all docstrings and adding cross-references. 
+try:
+    analyzer = Seppy("example.py", config_file="config.yaml")
+    analyzer.generate_docs("docs/")
+except ParseError as e:
+    print(f"Failed to parse code: {e}")
+except ConfigError as e:
+    print(f"Invalid configuration: {e}")
+except Exception as e:
+    print(f"Unexpected error: {e}") 
