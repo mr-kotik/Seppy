@@ -261,4 +261,73 @@ class Seppy:
             f"Average: {sum(self.performance_stats['memory_usage']) / len(self.performance_stats['memory_usage']):.2f} MB"
         ]
         
-        return "\n".join(report) 
+        return "\n".join(report)
+
+class ASTParser:
+    """Parser for Python AST analysis."""
+    
+    def __init__(self, source_code: str):
+        self.source_code = source_code
+        self.tree = None
+        
+    def parse(self) -> ast.AST:
+        """Parse source code into AST."""
+        try:
+            self.tree = ast.parse(self.source_code)
+            return self.tree
+        except SyntaxError as e:
+            raise ParseError(f"Failed to parse code: {str(e)}")
+            
+    def analyze(self) -> Dict[str, Any]:
+        """Analyze AST and extract information."""
+        if not self.tree:
+            self.parse()
+            
+        return {
+            'imports': self._find_imports(),
+            'classes': self._find_classes(),
+            'functions': self._find_functions(),
+            'globals': self._find_globals()
+        }
+        
+    def _find_imports(self) -> Set[str]:
+        """Find all imports in the AST."""
+        imports = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Import):
+                for name in node.names:
+                    imports.add(name.name)
+            elif isinstance(node, ast.ImportFrom):
+                module = node.module or ''
+                for name in node.names:
+                    if name.name == '*':
+                        imports.add(f"{module}.*")
+                    else:
+                        imports.add(f"{module}.{name.name}")
+        return imports
+        
+    def _find_classes(self) -> Set[str]:
+        """Find all class definitions."""
+        classes = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.ClassDef):
+                classes.add(node.name)
+        return classes
+        
+    def _find_functions(self) -> Set[str]:
+        """Find all function definitions."""
+        functions = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.FunctionDef):
+                functions.add(node.name)
+            elif isinstance(node, ast.AsyncFunctionDef):
+                functions.add(node.name)
+        return functions
+        
+    def _find_globals(self) -> Set[str]:
+        """Find all global variables."""
+        globals_vars = set()
+        for node in ast.walk(self.tree):
+            if isinstance(node, ast.Global):
+                globals_vars.update(node.names)
+        return globals_vars 
