@@ -1,3 +1,5 @@
+"""Documentation generation and processing functionality."""
+
 import ast
 from typing import Dict, Set, Any, Tuple, Optional
 from .models import ModuleInfo
@@ -698,4 +700,71 @@ def create_complex_module(name: str, node: ast.AST, structures: Dict[str, Any]) 
     for node_str, type_comment in structures.get('type_comments', {}).items():
         code_parts.append(f"{node_str}  # type: {type_comment}")
     
-    return "\n".join(code_parts) 
+    return "\n".join(code_parts)
+
+class DocumentationGenerator:
+    """Generator for module documentation."""
+    
+    def __init__(self, module_info: ModuleInfo):
+        self.module_info = module_info
+        
+    def generate_markdown(self) -> str:
+        """Generate markdown documentation."""
+        doc_parts = []
+        
+        # Module header
+        doc_parts.append(f"# {self.module_info.name}\n")
+        
+        # Module docstring
+        if self.module_info.docstring:
+            doc_parts.append(self.module_info.docstring + "\n")
+            
+        # Imports section
+        if self.module_info.imports:
+            doc_parts.append("## Imports\n")
+            for imp in sorted(self.module_info.imports):
+                doc_parts.append(f"- `{imp}`")
+            doc_parts.append("")
+            
+        # Classes section
+        if self.module_info.classes:
+            doc_parts.append("## Classes\n")
+            for class_name in sorted(self.module_info.classes):
+                doc_parts.append(f"### {class_name}\n")
+                # Add class documentation here
+                
+        # Functions section
+        if self.module_info.functions:
+            doc_parts.append("## Functions\n")
+            for func_name in sorted(self.module_info.functions):
+                doc_parts.append(f"### {func_name}\n")
+                # Add function documentation here
+                
+        # Async functions section
+        if self.module_info.async_functions:
+            doc_parts.append("## Async Functions\n")
+            for func_name in sorted(self.module_info.async_functions):
+                doc_parts.append(f"### {func_name}\n")
+                # Add async function documentation here
+                
+        return "\n".join(doc_parts)
+        
+    def _format_signature(self, node: ast.AST) -> str:
+        """Format function or method signature."""
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            args = []
+            for arg in node.args.args:
+                annotation = f": {ast.unparse(arg.annotation)}" if arg.annotation else ""
+                args.append(f"{arg.arg}{annotation}")
+            
+            returns = f" -> {ast.unparse(node.returns)}" if node.returns else ""
+            async_prefix = "async " if isinstance(node, ast.AsyncFunctionDef) else ""
+            
+            return f"{async_prefix}def {node.name}({', '.join(args)}){returns}"
+        return ""
+        
+    def _format_decorators(self, node: ast.AST) -> str:
+        """Format decorators for a node."""
+        if hasattr(node, 'decorator_list'):
+            return "\n".join(f"@{ast.unparse(d)}" for d in node.decorator_list)
+        return "" 
