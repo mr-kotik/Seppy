@@ -1,36 +1,35 @@
-# Seppy - Python Script Splitter
+# Seppy - Python Code Analysis Tool
 
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+Python 3.7+ | License: MIT
 
-Seppy (Script sEparation in PYthon) is a powerful tool for splitting large Python scripts into smaller, more manageable modules. It analyzes Python code and intelligently separates it into logical components while maintaining dependencies and relationships between different parts of the code.
+Seppy (Script sEparation in PYthon) is a powerful tool for analyzing Python code and generating comprehensive documentation. It uses AST-based parsing to understand code structure and relationships between different components.
 
 ## Key Features
 
-- 🔄 Smart code splitting based on code structure analysis
-- 📊 Dependency tracking and visualization
-- 📝 Comprehensive documentation generation
-- ⚡ Full async/await support
-- 🔍 Type hint preservation
-- 🎨 Code style maintenance
-- ⚙️ Highly configurable
-- 📈 Performance monitoring
-- 💾 Intelligent caching
+* 🔍 Smart code analysis based on AST parsing
+* 📊 Dependency tracking and visualization
+* 📝 Comprehensive documentation generation
+* ⚡ Full async/await support
+* 🔍 Type hint preservation
+* 🎨 Code style maintenance
+* ⚙️ Highly configurable
+* 📈 Performance monitoring
+* 💾 Intelligent caching
 
 ## Supported Python Features
 
-- ✅ All basic Python structures (functions, classes, variables)
-- ✅ Async/await syntax and async context managers
-- ✅ Type hints and annotations
-- ✅ Decorators (with and without arguments)
-- ✅ Context managers (with statements)
-- ✅ Dataclasses and Protocols
-- ✅ Generic types and type aliases
-- ✅ Nested classes and functions
-- ✅ Property methods and descriptors
-- ✅ Match statements (Python 3.10+)
-- ✅ Modern Python features (f-strings, walrus operator)
-- ✅ Comprehensive docstring support
+* ✅ All basic Python structures (functions, classes, variables)
+* ✅ Async/await syntax and async context managers
+* ✅ Type hints and annotations
+* ✅ Decorators (with and without arguments)
+* ✅ Context managers (with statements)
+* ✅ Dataclasses and Protocols
+* ✅ Generic types and type aliases
+* ✅ Nested classes and functions
+* ✅ Property methods and descriptors
+* ✅ Match statements (Python 3.10+)
+* ✅ Modern Python features (f-strings, walrus operator)
+* ✅ Comprehensive docstring support
 
 ## Quick Installation
 
@@ -41,77 +40,59 @@ pip install seppy
 Or install from source:
 
 ```bash
-git clone https://github.com/yourusername/seppy.git
+git clone https://github.com/mr-kotik/seppy.git
 cd seppy
 pip install -e .
 ```
 
 ## Quick Start
 
-### Command Line
-
-```bash
-# Basic usage
-seppy your_script.py
-
-# With output directory
-seppy your_script.py -o output_dir
-
-# With configuration
-seppy your_script.py -c config.yaml -m 2048 -v
-```
-
 ### Python API
 
 ```python
 from seppy import Seppy
 
-# Initialize
-splitter = Seppy(
-    source_file="your_script.py",
-    config_file="config.yaml",
-    memory_limit_mb=2048
-)
+# Initialize analyzer
+analyzer = Seppy("example.py")
 
-# Process script
-modules = splitter.parse_script("your_script.py")
+# Generate documentation
+analyzer.generate_docs("docs/")
 
-# Save modules
-splitter.save_modules("output_dir")
+# Get module information
+module_info = analyzer.get_module_info()
+print(f"Module name: {module_info.name}")
+print(f"Functions: {module_info.functions}")
+print(f"Classes: {module_info.classes}")
 ```
 
 ## Configuration
 
-Seppy can be configured using YAML or JSON files:
+Seppy can be configured using YAML files:
 
 ```yaml
 # config.yaml
 IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
-MEMORY_LIMIT_MB: 2048
+MEMORY_LIMIT_MB: 1024
 MAX_THREADS: 4
-FEATURES:
-  async_support: true
-  type_hints: true
-  docstrings: true
-CODE_STYLE:
-  indent_size: 4
-  line_length: 88
-  sort_imports: true
+CACHE_ENABLED: true
+REPORT_FORMAT: "md"
+LOG_LEVEL: "INFO"
 ```
 
 ## Documentation
 
 For detailed documentation, please see:
-- [User Guide](docs/index.md)
-- [API Reference](docs/api.md)
-- [Configuration Guide](docs/configuration.md)
-- [Examples](docs/examples.md)
+
+* [User Guide](docs/index.md)
+* [API Reference](docs/api.md)
+* [Configuration Guide](docs/configuration.md)
+* [Examples](docs/examples.md)
 
 ## Example Output
 
-For a given input script:
+For a given input file:
 
 ```python
 class DataProcessor:
@@ -127,31 +108,19 @@ class DataProcessor:
         return self._ready
 ```
 
-Seppy will generate:
+Seppy will generate comprehensive documentation including:
 
-```
-output_dir/
-├── data_processor/
-│   ├── __init__.py
-│   ├── processor.py
-│   └── utils.py
-├── docs/
-│   ├── data_processor.md
-│   └── api.md
-└── dependencies.json
-```
-
-With proper preservation of:
-- Async/await syntax
-- Type hints
-- Docstrings
-- Property decorators
-- Context managers
+* Class and method signatures
+* Type hints
+* Docstrings
+* Async/await syntax
+* Property decorators
+* Context managers
 
 ## Requirements
 
-- Python 3.7+
-- Dependencies listed in requirements.txt
+* Python 3.7+
+* Dependencies listed in requirements.txt
 
 ## Contributing
 
