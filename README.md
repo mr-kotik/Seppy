@@ -3,7 +3,7 @@
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Seppy is a powerful tool for splitting large Python scripts into smaller, more manageable modules. It analyzes Python code and intelligently separates it into logical components while maintaining dependencies and relationships between different parts of the code.
+Seppy (Script sEparation in PYthon) is a powerful tool for splitting large Python scripts into smaller, more manageable modules. It analyzes Python code and intelligently separates it into logical components while maintaining dependencies and relationships between different parts of the code.
 
 ## Key Features
 
