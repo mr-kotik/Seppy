@@ -1,0 +1,112 @@
+Metadata-Version: 2.2
+Name: seppy
+Version: 1.0.0
+Summary: A tool for splitting Python scripts into modules
+Author: Your Name
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+Requires-Dist: rich>=10.0.0
+Requires-Dist: tqdm>=4.62.0
+Requires-Dist: psutil>=5.8.0
+Requires-Dist: memory-profiler>=0.58.0
+Requires-Dist: typing-extensions>=4.0.0
+Requires-Dist: PyYAML>=6.0.0
+Requires-Dist: Jinja2>=3.0.0
+Dynamic: author
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+# Seppy - Python Script Splitter
+
+Seppy is a tool for splitting large Python scripts into smaller, more manageable modules. It analyzes Python code and intelligently separates it into logical components while maintaining dependencies and relationships between different parts of the code.
+
+## Features
+
+- Splits Python scripts into separate modules based on classes and functions
+- Maintains code dependencies and relationships
+- Generates documentation for each module
+- Creates dependency graphs
+- Supports async code
+- Configurable via JSON or YAML files
+- Performance monitoring and reporting
+- Caching support for faster processing
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+### Command Line Interface
+
+```bash
+python -m seppy your_script.py [-o OUTPUT_DIR] [-c CONFIG_FILE] [-m MEMORY_LIMIT] [-v]
+
+Arguments:
+  your_script.py         Path to the source Python file
+
+Options:
+  -o, --output          Output directory (default: output)
+  -c, --config          Path to configuration file (JSON or YAML)
+  -m, --memory-limit    Memory limit in MB
+  -v, --verbose         Enable verbose logging
+```
+
+### Python API
+
+```python
+from seppy import Seppy
+
+# Initialize with default configuration
+splitter = Seppy("your_script.py")
+
+# Or with custom configuration
+splitter = Seppy("your_script.py", config_file="config.yaml", memory_limit_mb=2048)
+
+# Parse and split the script
+modules = splitter.parse_script("your_script.py")
+
+# Save modules to directory
+splitter.save_modules("output_directory")
+```
+
+## Configuration
+
+You can configure Seppy using a JSON or YAML file. Example configuration:
+
+```yaml
+IGNORE_PATTERNS:
+  - "*.pyc"
+  - "__pycache__/*"
+  - ".*"
+MEMORY_LIMIT_MB: 1024
+MAX_THREADS: 4
+CACHE_ENABLED: true
+REPORT_FORMAT: "md"
+LOG_LEVEL: "INFO"
+```
+
+## Output Structure
+
+The tool creates the following structure in the output directory:
+
+```
+output_directory/
+в”њв”Ђв”Ђ module1.py
+в”њв”Ђв”Ђ module2.py
+в”њв”Ђв”Ђ ...
+в”њв”Ђв”Ђ docs/
+в”‚   в”њв”Ђв”Ђ module1.md
+в”‚   в”њв”Ђв”Ђ module2.md
+в”‚   в””в”Ђв”Ђ ...
+в””в”Ђв”Ђ dependencies.json
+```
+
+## License
+
+MIT License 
