@@ -20,11 +20,32 @@ IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
   - ".*"
-MEMORY_LIMIT_MB: 1024
+  - "test_*.py"
+  - "venv/*"
+MEMORY_LIMIT_MB: 2048
 MAX_THREADS: 4
 CACHE_ENABLED: true
 REPORT_FORMAT: "md"
 LOG_LEVEL: "INFO"
+CODE_STYLE:
+  indent_size: 4
+  line_length: 88
+  sort_imports: true
+FEATURES:
+  async_support: true
+  type_hints: true
+  docstrings: true
+  nested_classes: true
+  decorators: true
+DOCUMENTATION:
+  generate_examples: true
+  include_source: true
+  format: "markdown"
+  sections:
+    - "overview"
+    - "classes"
+    - "functions"
+    - "types"
 ```
 
 ### JSON Format
@@ -34,13 +55,38 @@ LOG_LEVEL: "INFO"
   "IGNORE_PATTERNS": [
     "*.pyc",
     "__pycache__/*",
-    ".*"
+    ".*",
+    "test_*.py",
+    "venv/*"
   ],
-  "MEMORY_LIMIT_MB": 1024,
+  "MEMORY_LIMIT_MB": 2048,
   "MAX_THREADS": 4,
   "CACHE_ENABLED": true,
   "REPORT_FORMAT": "md",
-  "LOG_LEVEL": "INFO"
+  "LOG_LEVEL": "INFO",
+  "CODE_STYLE": {
+    "indent_size": 4,
+    "line_length": 88,
+    "sort_imports": true
+  },
+  "FEATURES": {
+    "async_support": true,
+    "type_hints": true,
+    "docstrings": true,
+    "nested_classes": true,
+    "decorators": true
+  },
+  "DOCUMENTATION": {
+    "generate_examples": true,
+    "include_source": true,
+    "format": "markdown",
+    "sections": [
+      "overview",
+      "classes",
+      "functions",
+      "types"
+    ]
+  }
 }
 ```
 
@@ -64,7 +110,7 @@ IGNORE_PATTERNS:
 Memory limit in megabytes for the processing.
 
 ```yaml
-MEMORY_LIMIT_MB: 1024  # 1GB limit
+MEMORY_LIMIT_MB: 2048  # 2GB limit
 ```
 
 - Minimum: 256 MB
@@ -96,33 +142,52 @@ When enabled:
 - Stores results in `.seppy_cache` directory
 - Automatically manages cache size
 
-### REPORT_FORMAT
+### CODE_STYLE
 
-Format for generated documentation.
-
-```yaml
-REPORT_FORMAT: "md"  # Markdown format
-```
-
-Available formats:
-- `"md"` - Markdown (default)
-- `"rst"` - reStructuredText
-- `"txt"` - Plain text
-
-### LOG_LEVEL
-
-Logging verbosity level.
+Code style preferences for generated modules.
 
 ```yaml
-LOG_LEVEL: "INFO"
+CODE_STYLE:
+  indent_size: 4        # Number of spaces for indentation
+  line_length: 88       # Maximum line length
+  sort_imports: true    # Sort imports by type
+  wrap_long_lines: true # Wrap lines exceeding max length
+  spaces_around_ops: true # Add spaces around operators
 ```
 
-Available levels:
-- `"DEBUG"` - Detailed debugging information
-- `"INFO"` - General information (default)
-- `"WARNING"` - Warning messages only
-- `"ERROR"` - Error messages only
-- `"CRITICAL"` - Critical errors only
+### FEATURES
+
+Control which Python features to support.
+
+```yaml
+FEATURES:
+  async_support: true    # Support async/await syntax
+  type_hints: true      # Include type hints
+  docstrings: true      # Preserve docstrings
+  nested_classes: true  # Support nested class definitions
+  decorators: true      # Support decorators
+  dataclasses: true     # Support dataclass features
+  protocols: true       # Support Protocol classes
+  generics: true        # Support generic types
+```
+
+### DOCUMENTATION
+
+Documentation generation settings.
+
+```yaml
+DOCUMENTATION:
+  generate_examples: true   # Generate usage examples
+  include_source: true     # Include source code
+  format: "markdown"       # Documentation format
+  sections:               # Sections to include
+    - "overview"
+    - "classes"
+    - "functions"
+    - "types"
+  code_blocks: true       # Include code blocks
+  cross_references: true  # Add cross-references
+```
 
 ## Advanced Configuration
 
@@ -132,6 +197,7 @@ Available levels:
 CACHE_VERSION: "1.0.0"
 MAX_CACHE_SIZE: 1073741824  # 1GB in bytes
 CACHE_CLEANUP_THRESHOLD: 0.9  # 90%
+CACHE_TTL: 86400           # 24 hours in seconds
 ```
 
 ### Memory Management
@@ -140,59 +206,67 @@ CACHE_CLEANUP_THRESHOLD: 0.9  # 90%
 MEMORY_CHECK_INTERVAL: 60  # seconds
 MIN_MEMORY_LIMIT: 256     # MB
 MAX_MEMORY_LIMIT: 8192    # MB
+GC_THRESHOLD: 0.8         # Trigger GC at 80% memory usage
 ```
 
-### File Operations
+### Processing Options
 
 ```yaml
-MAX_LINES_PER_READ: 250
-DEFAULT_ENCODING: "utf-8"
+PROCESSING:
+  parallel_enabled: true
+  max_file_size: 10485760  # 10MB
+  timeout: 300             # 5 minutes
+  retries: 3
+  batch_size: 100
 ```
-
-## Command Line Arguments
-
-Command line arguments override configuration file settings:
-
-```bash
-seppy script.py -m 2048 -v
-```
-
-Priority order:
-1. Command line arguments
-2. Configuration file
-3. Default values
 
 ## Environment Variables
 
-Seppy also respects the following environment variables:
+Seppy respects the following environment variables:
 
 ```bash
 SEPPY_CONFIG_FILE=/path/to/config.yaml
 SEPPY_MEMORY_LIMIT=2048
 SEPPY_LOG_LEVEL=DEBUG
+SEPPY_CACHE_DIR=/path/to/cache
+SEPPY_MAX_THREADS=8
 ```
 
 ## Configuration Best Practices
 
-1. **Start with Defaults**
+1. **Development Configuration**
    ```yaml
    MEMORY_LIMIT_MB: 1024
    MAX_THREADS: 4
    CACHE_ENABLED: true
+   LOG_LEVEL: "DEBUG"
+   FEATURES:
+     async_support: true
+     type_hints: true
    ```
 
-2. **Adjust for Large Projects**
+2. **Production Configuration**
    ```yaml
    MEMORY_LIMIT_MB: 4096
    MAX_THREADS: 8
    CACHE_ENABLED: true
+   LOG_LEVEL: "WARNING"
+   FEATURES:
+     async_support: true
+     type_hints: true
    ```
 
-3. **Debug Configuration**
+3. **Documentation Generation**
    ```yaml
-   LOG_LEVEL: "DEBUG"
-   CACHE_ENABLED: false
-   MEMORY_CHECK_INTERVAL: 30
+   DOCUMENTATION:
+     generate_examples: true
+     include_source: true
+     format: "markdown"
+     sections:
+       - "overview"
+       - "classes"
+       - "functions"
+     code_blocks: true
    ```
 
 ## Example Configurations
@@ -203,19 +277,37 @@ IGNORE_PATTERNS:
   - "*.pyc"
 MEMORY_LIMIT_MB: 1024
 MAX_THREADS: 4
+CACHE_ENABLED: true
 ```
 
-### Development Configuration
+### Full Development Configuration
 ```yaml
 IGNORE_PATTERNS:
   - "*.pyc"
   - "__pycache__/*"
   - "venv/*"
   - ".git/*"
+  - "tests/*"
 MEMORY_LIMIT_MB: 2048
 MAX_THREADS: 4
 CACHE_ENABLED: true
 LOG_LEVEL: "DEBUG"
+CODE_STYLE:
+  indent_size: 4
+  line_length: 88
+  sort_imports: true
+FEATURES:
+  async_support: true
+  type_hints: true
+  docstrings: true
+DOCUMENTATION:
+  generate_examples: true
+  include_source: true
+  format: "markdown"
+  sections:
+    - "overview"
+    - "classes"
+    - "functions"
 ```
 
 ### Production Configuration
@@ -228,5 +320,20 @@ MEMORY_LIMIT_MB: 4096
 MAX_THREADS: 8
 CACHE_ENABLED: true
 LOG_LEVEL: "WARNING"
-REPORT_FORMAT: "md"
+CODE_STYLE:
+  indent_size: 4
+  line_length: 88
+  sort_imports: true
+FEATURES:
+  async_support: true
+  type_hints: true
+  docstrings: true
+DOCUMENTATION:
+  generate_examples: false
+  include_source: false
+  format: "markdown"
+  sections:
+    - "overview"
+    - "classes"
+    - "functions"
 ``` 

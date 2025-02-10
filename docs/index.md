@@ -8,10 +8,11 @@ Welcome to the comprehensive documentation for Seppy, a powerful Python script s
 2. [Installation](#installation)
 3. [Basic Usage](#basic-usage)
 4. [Advanced Usage](#advanced-usage)
-5. [Configuration](#configuration)
-6. [Output Structure](#output-structure)
-7. [Best Practices](#best-practices)
-8. [Troubleshooting](#troubleshooting)
+5. [Supported Structures](#supported-structures)
+6. [Configuration](#configuration)
+7. [Output Structure](#output-structure)
+8. [Best Practices](#best-practices)
+9. [Troubleshooting](#troubleshooting)
 
 ## Introduction
 
@@ -37,6 +38,96 @@ Seppy is designed to help developers manage large Python codebases by intelligen
   - Generates markdown documentation
   - Creates module summaries
   - Maintains cross-references
+
+## Supported Structures
+
+Seppy supports all major Python language structures:
+
+### Basic Structures
+- Variables and assignments
+- Functions and methods
+- Classes and inheritance
+- Import statements
+- Docstrings
+- Type hints and annotations
+
+### Advanced Structures
+1. **Control Flow**:
+   - If/elif/else statements
+   - For/while loops with else clauses
+   - Match/case statements (Python 3.10+)
+   - Try/except/else/finally blocks
+
+2. **Context Managers**:
+   - With statements
+   - Async with statements
+   - Multiple context managers
+   - Context manager aliases
+
+3. **Functions and Methods**:
+   - Regular functions
+   - Async functions
+   - Generator functions
+   - Lambda functions
+   - Nested functions
+   - Method types:
+     - Instance methods
+     - Class methods
+     - Static methods
+     - Abstract methods
+     - Property methods
+
+4. **Classes and Types**:
+   - Regular classes
+   - Dataclasses
+   - Abstract base classes
+   - Protocols
+   - Generic types
+   - Type aliases
+   - Type variables
+   - ClassVar annotations
+
+5. **Comprehensions and Generators**:
+   - List comprehensions
+   - Set comprehensions
+   - Dict comprehensions
+   - Generator expressions
+
+6. **Decorators**:
+   - Function decorators
+   - Class decorators
+   - Method decorators
+   - Decorators with arguments
+
+7. **Asynchronous Programming**:
+   - Async functions
+   - Async with statements
+   - Async for loops
+   - Await expressions
+   - Async context managers
+
+8. **Modern Python Features**:
+   - f-strings
+   - Walrus operator (:=)
+   - Type comments
+   - Match statements
+   - Positional-only parameters
+   - Keyword-only parameters
+   - Variable annotations
+
+9. **Special Methods**:
+   - Magic methods
+   - Property methods
+   - Descriptors
+   - Context manager methods
+
+10. **Module-Level Features**:
+    - Module docstrings
+    - Import statements
+    - Import aliases
+    - Wildcard imports
+    - Future imports
+    - Type hints
 
 ## Installation
 

@@ -14,7 +14,7 @@ import gc
 import psutil
 from functools import lru_cache
 
-from .config import DEFAULT_CONFIG, SeppyConfig
+from .config import DEFAULT_CONFIG, SeppyConfig, CACHE_DIR_NAME
 from .models import ModuleInfo, CacheData, ProcessingStats
 from .exceptions import ParseError, ModuleProcessingError, CacheError
 from .utils import time_operation, logger
@@ -123,10 +123,11 @@ class Seppy:
             if async_functions:
                 self.has_async_code = True
             
-            modules = self._split_into_modules(tree, global_vars, functions, async_functions, classes)
+            # Store modules in instance variable
+            self.modules = self._split_into_modules(tree, global_vars, functions, async_functions, classes)
             
-            self.stats.total_modules = len(modules)
-            return modules
+            self.stats.total_modules = len(self.modules)
+            return self.modules
             
         except Exception as e:
             raise ParseError(f"Failed to parse script: {str(e)}")
@@ -159,11 +160,19 @@ class Seppy:
         """Split code into separate modules."""
         modules = {}
         
+        # Get source code
+        try:
+            with open(self.source_file, 'r', encoding='utf-8') as f:
+                source_code = f.read()
+        except Exception as e:
+            logger.warning(f"Could not read source file for code preservation: {e}")
+            source_code = ""
+        
         # Create module for each class
         for class_node in classes:
             class_name = class_node.name.lower()
             if not any(class_name.startswith(prefix) for prefix in self.config["IGNORE_PATTERNS"]):
-                structures = analyze_complex_structures(class_node)
+                structures = analyze_complex_structures(class_node, source_code)
                 code = create_complex_module(class_name, class_node, structures)
                 
                 modules[class_name] = ModuleInfo(
@@ -180,7 +189,7 @@ class Seppy:
         for func_node in functions + async_functions:
             func_name = func_node.name.lower()
             if not any(func_name.startswith(prefix) for prefix in self.config["IGNORE_PATTERNS"]):
-                structures = analyze_complex_structures(func_node)
+                structures = analyze_complex_structures(func_node, source_code)
                 code = create_complex_module(func_name, func_node, structures)
                 
                 modules[func_name] = ModuleInfo(
@@ -227,9 +236,11 @@ class Seppy:
         
         # Save dependency graph
         try:
+            # Convert sets to lists for JSON serialization
+            serializable_graph = {k: list(v) for k, v in self.dependencies_graph.items()}
             graph_path = output_path / "dependencies.json"
             with open(graph_path, 'w', encoding='utf-8') as f:
-                json.dump(self.dependencies_graph, f, indent=2)
+                json.dump(serializable_graph, f, indent=2)
             logger.info(f"Saved dependency graph to {graph_path}")
         except Exception as e:
             logger.error(f"Failed to save dependency graph: {str(e)}")

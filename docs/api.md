@@ -112,6 +112,28 @@ class ProcessingStats:
 ### Code Analysis Functions
 
 ```python
+def analyze_complex_structures(node: ast.AST, source_code: str = '') -> Dict[str, Any]:
+    """Analyze complex code structures.
+    
+    Supported structures:
+    - Functions and methods (sync/async)
+    - Classes and inheritance
+    - Decorators and annotations
+    - Type hints and aliases
+    - Context managers
+    - Control flow structures
+    - Comprehensions and generators
+    - Modern Python features
+    
+    Args:
+        node: AST node to analyze
+        source_code: Original source code for preserving formatting
+        
+    Returns:
+        Dictionary containing analyzed structures
+    """
+    pass
+
 def find_used_imports(node: ast.AST, all_imports: Set[str]) -> Set[str]:
     """Find imports that are actually used in the code."""
     pass
@@ -123,10 +145,6 @@ def find_used_globals(node: ast.AST, global_vars: Set[str]) -> Set[str]:
 def extract_imports(tree: ast.AST, *nodes) -> Set[str]:
     """Extract all imports from AST nodes."""
     pass
-
-def analyze_complex_structures(node: ast.AST) -> Dict[str, Any]:
-    """Analyze complex code structures like nested classes and functions."""
-    pass
 ```
 
 ## Processors
@@ -134,20 +152,64 @@ def analyze_complex_structures(node: ast.AST) -> Dict[str, Any]:
 ### Code Processing Functions
 
 ```python
-def organize_imports(imports: Set[str]) -> str:
-    """Organize imports into a formatted string."""
-    pass
-
-def create_module_code(imports: Set[str], code: str) -> str:
-    """Create module code with organized imports."""
+def create_complex_module(name: str, node: ast.AST, structures: Dict[str, Any]) -> str:
+    """Create a module from complex code structures.
+    
+    Handles:
+    - Type aliases and generic types
+    - Constants and variables
+    - Import statements
+    - Function and method definitions
+    - Class definitions with inheritance
+    - Nested classes and functions
+    - Decorators and annotations
+    - Context managers and control flow
+    - Modern Python features
+    
+    Args:
+        name: Name of the module
+        node: AST node to process
+        structures: Dictionary of analyzed structures
+        
+    Returns:
+        Generated module code as string
+    """
     pass
 
 def create_module_docs(module_name: str, code: str) -> str:
-    """Create documentation for a module."""
+    """Create documentation for a module.
+    
+    Generates:
+    - Module overview
+    - Import statements
+    - Function and method documentation
+    - Class documentation
+    - Type information
+    - Usage examples
+    
+    Args:
+        module_name: Name of the module
+        code: Source code of the module
+        
+    Returns:
+        Generated markdown documentation
+    """
     pass
 
-def create_complex_module(name: str, node: ast.AST, structures: Dict[str, Any]) -> str:
-    """Create a module from complex code structures."""
+def organize_imports(imports: Set[str]) -> str:
+    """Organize imports into a formatted string.
+    
+    Organizes imports into sections:
+    - Standard library imports
+    - Third-party imports
+    - Local imports
+    
+    Args:
+        imports: Set of import statements
+        
+    Returns:
+        Formatted import section
+    """
     pass
 ```
 
@@ -211,25 +273,23 @@ modules = splitter.parse_script("script.py")
 splitter.save_modules("output")
 ```
 
-### With Configuration
+### Advanced Usage
 
 ```python
-from seppy import Seppy, SeppyConfig
+from seppy import Seppy
 
-config: SeppyConfig = {
-    "IGNORE_PATTERNS": ["*.pyc"],
-    "MEMORY_LIMIT_MB": 2048,
-    "MAX_THREADS": 4,
-    "CACHE_ENABLED": True,
-    "REPORT_FORMAT": "md",
-    "LOG_LEVEL": "INFO"
-}
-
+# Initialize with configuration
 splitter = Seppy(
-    "script.py",
+    source_file="complex_script.py",
     config_file="config.yaml",
     memory_limit_mb=2048
 )
+
+# Process and analyze
+modules = splitter.parse_script("complex_script.py")
+
+# Save with documentation
+splitter.save_modules("output_modules")
 ```
 
 ### Error Handling
@@ -240,8 +300,10 @@ from seppy import Seppy, ParseError, ModuleProcessingError
 try:
     splitter = Seppy("script.py")
     modules = splitter.parse_script("script.py")
+    splitter.save_modules("output")
 except ParseError as e:
     print(f"Parse error: {e}")
 except ModuleProcessingError as e:
     print(f"Processing error: {e}")
-``` 
+except Exception as e:
+    print(f"Unexpected error: {e}") 
